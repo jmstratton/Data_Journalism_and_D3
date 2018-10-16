@@ -1,17 +1,25 @@
 // D3 Scatterplot Assignment
 // Create a scatter plot with D3.js.
+// When the browser window is resized, responsify() is called.
+d3.select(window).on("resize", makeResponsive);
 
+// When the browser loads, makeResponsive() is called.
+makeResponsive();
+
+// The code for the chart is wrapped inside a function
+// that automatically resizes the chart
+function makeResponsive() {
 // Define SVG area dimensions
 var svgWidth = 810;
 var svgHeight = 500;
 
 // Define the chart's margins as an object
 var margin = {
-    top: 20,
-    right: 40,
-    bottom: 60,
+    top: 10,
+    right: 30,
+    bottom: 100,
     left: 100
-}
+};
 
 // Define dimensions of the chart area
 var chartWidth = svgWidth - margin.left - margin.right;
@@ -43,21 +51,22 @@ d3.csv("data/data.csv", function(error, corrData){
     corrData.forEach(function (d){
         d.poverty = +d.poverty;
         d.education = +d.education;
-        // console.log(d)
+        console.log(d)
     });
     
     // Configure a Linear scale with a range between 0 and the chartWidth
     // Set the domain for the xLinearScale function
     // d3.extent returns the an array containing the min and max values for the property specified
     var xLinearScale = d3.scaleLinear()
-                         .range([0, chartWidth]);
-                        //  .domain(d3.extent(corrData, data => data.poverty))
+                         .range([0, chartWidth])
+                         .domain(d3.extent(corrData, data => data.poverty));
+                         
 
     // Configure a linear scale with a range between the chartHeight and 0
     // Set the domain for the yLinearScale function
     var yLinearScale = d3.scaleLinear()
-                         .range([chartHeight, 0]);
-                        //  .domain([0, d3.max(corrData, data => data.education)]);
+                         .range([chartHeight, 0])
+                         .domain([0, d3.max(corrData, data => data.education)]);
     
     // Create two new functions passing the scales in as arguments
     // These will be used to create the chart's axes
@@ -100,7 +109,7 @@ d3.csv("data/data.csv", function(error, corrData){
                                  .attr("cx", d => xLinearScale(d.poverty))
                                  .attr("cy", d => yLinearScale(d.education))
                                  .attr("r", "15")
-                                 .attr("fill", "lightblue")
+                                 .attr("fill", "darkcyan")
                                  .attr("opacity", ".75")
                                 
                           chartGroup.append("text")
@@ -123,8 +132,7 @@ d3.csv("data/data.csv", function(error, corrData){
     var toolTip = d3.tip()
                     .attr("class", "tooltip")
                     .offset([80, -60])
-                    .html(d =>
-                          `${d.state}<br>Poverty: ${d.poverty}<br>Education: ${d.education}`
+                    .html(d =>`${d.state}<br>Poverty: ${d.poverty}<br>Education: ${d.education}`
     );
 
     // Create tooltip in the chart
@@ -147,9 +155,9 @@ d3.csv("data/data.csv", function(error, corrData){
               .attr("dy", "1em")
               .attr("class", "axisText")
               .text("Education (%)");
-
+        });
     chartGroup.append("text")
               .attr("transform", `translate(${chartWidth / 2}, ${chartHeight + margin.top + 30})`)
               .attr("class", "axisText")
               .text("In Poverty (%)");
-});
+        };
